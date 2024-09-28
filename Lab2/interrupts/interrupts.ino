@@ -1,7 +1,10 @@
+// Constant pin assignment for buttons and LEDs
 const uint8_t LED_R = 11;   // Digital 11
 const uint8_t LED_G = 10;   // Digital 10
 const uint8_t BTN_R = 2;    // Digital 2
 const uint8_t BTN_G = 3;    // Digital 3
+
+// Constants for manipulating the dot dispaly matrix
 const uint8_t ROW_1 = 14;   // Analog A0, DD 12
 const uint8_t ROW_2 = 15;   // Analog A1, DD 11
 const uint8_t ROW_3 = 16;   // Analog A2, DD 02
@@ -14,10 +17,14 @@ const uint8_t COL_2 = 5;    // Digital 5, DD 03
 const uint8_t COL_3 = 6;    // Digital 6, DD 10
 const uint8_t COL_4 = 7;    // Digital 7, DD 07
 const uint8_t COL_5 = 8;    // Digital 8, DD 08
-const int8_t MIN_NUM = 0;
-const int8_t MAX_NUM = 9;
 const uint8_t colPins[] =   { COL_1, COL_2, COL_3, COL_4, COL_5};
 const uint8_t rowPins[] = { ROW_1, ROW_2, ROW_3, ROW_4, ROW_5, ROW_6, ROW_7 };
+
+// Constant for boundaries of counting
+const int8_t MIN_NUM = 0;
+const int8_t MAX_NUM = 9;
+
+// Buffer of all the dot display patterns
 const uint8_t memBuf[10][7][5]
 {
   // 0
@@ -131,6 +138,7 @@ unsigned long lastChange = 0;
 // Track which direction to count
 bool countUp = true;
 
+// Debug flag
 #define DEBUG 1
 
 //Red Interrupt Ftn
@@ -153,14 +161,17 @@ void setup() {
   Serial.begin(9600, SERIAL_8N1);
 #endif
 
+  // Initialize buttons
   pinMode(BTN_R, INPUT);
   pinMode(BTN_G, INPUT);
 
+  // Initialize LEDS
   pinMode(LED_R, OUTPUT);
   digitalWrite(LED_R, LOW);
   pinMode(LED_G, OUTPUT);
   digitalWrite(LED_G, LOW);
   
+  // Initialize dot display
   for(uint8_t i = 0; i < 7; i++)
   {
     pinMode(rowPins[i], OUTPUT);
@@ -173,20 +184,32 @@ void setup() {
     digitalWrite(colPins[i], LOW);
   }
 
+  // Initialize start conditions
   // Will start counting first
   number = 0;
   lastChange = millis();
   countUp = true;
   digitalWrite(LED_R, HIGH);
-
-  // handling interrupts
-  attachInterrupt(digitalPinToInterrupt(BTN_R), ISR_R, FALLING);
-  attachInterrupt(digitalPinToInterrupt(BTN_G), ISR_G, FALLING);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
+
+  // Poll Red button
+  if(!digitalRead(BTN_R))
+  {
+    countUp = true;
+    digitalWrite(LED_R, HIGH);
+    digitalWrite(LED_G, LOW);
+  }
+  // Poll Green Button
+  else if(!digitalRead(BTN_G))
+  {
+    countUp = false;
+    digitalWrite(LED_R, LOW);
+    digitalWrite(LED_G, HIGH);
+  }
+
   // Check to see if enough time has elapsed for digit update
   unsigned long diff = millis() - lastChange;
   if (diff > 1000) // If at least one secoond
@@ -199,7 +222,6 @@ void loop() {
     {
       number = (--number < MIN_NUM) ? MAX_NUM : number;
     }
-    
 #if DEBUG
     Serial.print("Updating Number to ");
     Serial.print(number, DEC);
@@ -208,13 +230,14 @@ void loop() {
     Serial.println("ms");
 #endif
 
+    // Update the flag for when digit was last changed
     lastChange = millis();
   }
 
   refreshMatrix();
-  
 }
 
+// Makes sure the matrix is display information
 void refreshMatrix()
 {
   for(int col = 0; col < 5; col++)
@@ -226,6 +249,7 @@ void refreshMatrix()
   }
 }
 
+// Set row pins
 void setRowPins(uint8_t col)
 {
   for(int row = 0; row < 7; row++)
