@@ -183,7 +183,6 @@ void loop() {
     digitalWrite(LED_R, LOW);
     digitalWrite(LED_G, HIGH);
   }
-  attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode)
 
   // Check to see if enough time has elapsed for digit update
   unsigned long diff = millis() - lastChange;
