@@ -6,7 +6,7 @@ int index = 0;
 int maxIndex = 11;
 uint8_t encoded[MAX_MSG_SIZE] = "HELLO WORLD";
 uint8_t decoded[MAX_MSG_SIZE] = "HELLO WORLD";
-int key = 4;
+int cypherKey = 4;
 
 void setup() {
   Serial.begin(9600, SERIAL_8N1);
@@ -24,7 +24,7 @@ void loop() {
     index = (index + 1) % maxIndex;
     lastUpdate = millis();
     
-#if true // Debug statement
+#if false // Debug statement
      Serial.print("Waited ");
      Serial.print(diff, DEC);
      Serial.println("ms");
@@ -32,6 +32,33 @@ void loop() {
   }
 
   refreshMatrix();
+
+  processSerial();
+}
+
+void processSerial()
+{
+  if(Serial.available() > 0)
+  {
+    // Clear past message
+    for(int i=0; i<MAX_MSG_SIZE; i++)
+    {
+      encoded[i] = decoded[i] = '\0';
+    }
+    // Read an entire line of text
+    size_t bytes = Serial.readBytesUntil('\n', encoded, MAX_MSG_SIZE);
+    
+    for (int i = 0; i < bytes; i++)
+    {
+      decoded[i] = decrypt(encoded[i], cypherKey);
+    }
+    maxIndex = bytes;
+    index = 0;
+
+    // Transmit decoded message
+    Serial.write(decoded, bytes);
+    Serial.write('\n');
+  }
 }
 
 char decrypt(char c, uint8_t key)
