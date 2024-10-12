@@ -49,5 +49,22 @@ void loop() {
   }
 
   refreshMatrix();
+
+  echoSerial();
 }
+
+void echoSerial()
+{
+  uint8_t buffer[100];
+  size_t bytes;
+  while (Serial.available() > 0)
+  {
+    // Read a single line
+    bytes = Serial.readBytesUntil('\n', buffer, 100);
+    Serial.write(buffer, bytes);
+    Serial.write('\n'); // New line to keep reading
+  }
+}
+
+
 
