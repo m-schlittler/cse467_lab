@@ -58,13 +58,13 @@ void processSerial()
       }
     }
 
-#if true
+#if false
     Serial.print("IDX is ");
     Serial.print(idx, DEC);
     Serial.println();
 #endif
     cypherKey = atoi(encoded + idx);
-    for (int i = 0; i <= idx; i++)
+    for (int i = 0; i < idx; i++)
     {
         decoded[i] = decrypt(encoded[i], cypherKey);
       
@@ -95,17 +95,12 @@ char decrypt(char c, uint8_t key)
   if (c == '_')
   {
     x = 26;
-    // return (26 - key + 27) % 27;
   }
-  else {
+  else 
+  {
     x = c - 'A';
-    // return (c - key + 27) % 27;
   }
-     x = (x + 27 - key) % 27;
-     return x == 26 ? ' ' : x + 'A';
-}
 
-char encrypt(char c, uint8_t key)
-{
-  return (c + key) % 27;
+  x = (x + NUM_CHARS - key) % NUM_CHARS;
+  return x == 26 ? ' ' : x + 'A';
 }
