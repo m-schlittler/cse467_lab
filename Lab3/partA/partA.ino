@@ -57,13 +57,26 @@ void processSerial()
 
     // Transmit decoded message
     Serial.write(decoded, bytes);
+    // Serial.write("H".toChar(), DEC);
     Serial.write('\n');
   }
 }
 
 char decrypt(char c, uint8_t key)
 {
-  return (c - key + 27) % 27;
+  uint8_t x;
+
+  if (c == '_')
+  {
+    x = 26;
+    // return (26 - key + 27) % 27;
+  }
+  else {
+    x = c - 'A';
+    // return (c - key + 27) % 27;
+  }
+     x = (x + 27 - key) % 27;
+     return x == 26 ? ' ' : x + 'A';
 }
 
 char encrypt(char c, uint8_t key)
