@@ -82,8 +82,9 @@ void processSerial()
     Serial.println("Decoded Message is:");
     Serial.write(decoded, maxIndex);
     Serial.println();
+    Serial.println();
     Serial.print("Key n is ");
-    Serial.print(cypherKey, DEC);
+    Serial.println(cypherKey, DEC);
     Serial.println();
   }
 }
