@@ -331,5 +331,5 @@ uint8_t getIndex(char c)
 {
   // Space is last index in dot display array, so give index 26
   // Otherwise bias using subtract the 'A' character to get proper index
-  return isSpace(c) ? 26 : c - 'A';
+  return c == ' ' || c == '_' ? 26 : c - 'A';
 }
