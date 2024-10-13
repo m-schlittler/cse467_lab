@@ -320,7 +320,7 @@ void setRowPins(uint8_t col)
 {	
   for(int row = 0; row < 7; row++)
   {
-    uint8_t idx = getIndex(encoded[index]);
+    uint8_t idx = getIndex(decoded[index]);
     digitalWrite(rowPins[row], alphabet[idx][row][col]);
   }
 }
