@@ -3,8 +3,8 @@
 
 unsigned long lastUpdate = 0;
 int index = 0;
-int maxIndex = 11;
-uint8_t encoded[MAX_MSG_SIZE] = "HELLO WORLD";
+int maxIndex = 27;
+uint8_t encoded[MAX_MSG_SIZE] = "ABCDEGHIJKLMNOPQRSTUVWXYZ_";
 uint8_t decoded[MAX_MSG_SIZE] = "HELLO WORLD";
 int cypherKey = 4;
 
@@ -54,11 +54,17 @@ void processSerial()
     }
     maxIndex = bytes;
     index = 0;
+    lastUpdate = millis();
 
     // Transmit decoded message
+    Serial.println("Encoded Message is:");
+    Serial.write(encoded, bytes);
+    Serial.println();
+    Serial.println();
+    Serial.println("Decoded Message is:");
     Serial.write(decoded, bytes);
-    // Serial.write("H".toChar(), DEC);
-    Serial.write('\n');
+    Serial.println();
+    Serial.println();
   }
 }
 
