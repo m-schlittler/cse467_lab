@@ -4,8 +4,8 @@
 unsigned long lastUpdate = 0;
 int index = 0;
 int maxIndex = 27;
-uint8_t encoded[MAX_MSG_SIZE] = "ABCDEGHIJKLMNOPQRSTUVWXYZ_";
-uint8_t decoded[MAX_MSG_SIZE] = "HELLO WORLD";
+uint8_t encoded[MAX_MSG_SIZE] = "ABCDFEGHIJKLMNOPQRSTUVWXYZ_";
+uint8_t decoded[MAX_MSG_SIZE] = "ABCDFEGHIJKLMNOPQRSTUVWXYZ_";
 int cypherKey = 4;
 
 void setup() {
