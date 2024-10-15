@@ -3,11 +3,11 @@
 
 unsigned long lastUpdate = 0;
 int index = 0;
-int maxIndex = NUM_CHARS;
+int maxIndex = 27;
 
 // Buffers for messages. Initialize with alphabet just to prove everything works
-uint8_t encoded[MAX_MSG_SIZE] = "ABCDFEGHIJKLMNOPQRSTUVWXYZ_";
-uint8_t decoded[MAX_MSG_SIZE] = "ABCDFEGHIJKLMNOPQRSTUVWXYZ_";
+uint8_t encoded[MAX_MSG_SIZE] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+uint8_t decoded[MAX_MSG_SIZE] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 
 // Current key to the encrption algorithm
 int cypherKey = 4;
@@ -25,7 +25,7 @@ void loop() {
   unsigned long diff = millis() - lastUpdate;
   if(diff > 1000)
   {
-    index = (index + 1) % maxIndex; // Move to next character
+    index = (index + 1) % maxIndex;
     lastUpdate = millis();
     
 #if false // Debug statement
@@ -50,20 +50,43 @@ void processSerial()
     {
       encoded[i] = decoded[i] = '\0';
     }
-    
-	// Read an entire line of text
+	
+    // Read an entire line of text
     size_t bytes = Serial.readBytesUntil('\n', encoded, MAX_MSG_SIZE);
     
-	// Decode message
+	// Look for new cypher key
+	// Expected format is <MSG>##
+	// Where ## is the cypher shift
+    int idx = 0;
     for (int i = 0; i < bytes; i++)
     {
-      decoded[i] = decrypt(encoded[i], cypherKey);
+	  // Since the cypher doesn't include numbers, can just look for that information
+      if('0' <= encoded[i] && encoded[i] <= '9')
+      {
+        idx = i;
+        break;
+      }
     }
-    maxIndex = bytes;
+
+#if false
+    Serial.print("IDX is ");
+    Serial.print(idx, DEC);
+    Serial.println();
+#endif
+
+	// get the cypher key value
+    cypherKey = atoi(encoded + idx);
+    
+	// Decode the message
+	for (int i = 0; i < idx; i++)
+    {
+        decoded[i] = decrypt(encoded[i], cypherKey);
+      
+    }
+
+    maxIndex = idx;
     index = 0;
-	
-	// Reset timer because otherwise first character is skipped
-    lastUpdate = millis(); 
+    lastUpdate = millis();
 
     // Transmit decoded message
     Serial.println("Encoded Message is:");
@@ -71,17 +94,29 @@ void processSerial()
     Serial.println();
     Serial.println();
     Serial.println("Decoded Message is:");
-    Serial.write(decoded, bytes);
+    Serial.write(decoded, maxIndex);
     Serial.println();
+    Serial.println();
+    Serial.print("Key n is ");
+    Serial.println(cypherKey, DEC);
     Serial.println();
   }
 }
 
+// Decodes the encrypted character
 char decrypt(char c, uint8_t key)
 {
-  uint8_t x = c == '_' ? 26 : (c - 'A');
+  uint8_t x;
 
-  x = (x + NUM_CHARS - key) % NUM_CHARS; // Add base to prevent negative number
-	 
+  if (c == '_')
+  {
+    x = 26;
+  }
+  else 
+  {
+    x = c - 'A';
+  }
+
+  x = (x + NUM_CHARS - key) % NUM_CHARS;
   return x == 26 ? ' ' : x + 'A';
 }
