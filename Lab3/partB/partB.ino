@@ -4,8 +4,12 @@
 unsigned long lastUpdate = 0;
 int index = 0;
 int maxIndex = 27;
+
+// Buffers for messages. Initialize with alphabet just to prove everything works
 uint8_t encoded[MAX_MSG_SIZE] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 uint8_t decoded[MAX_MSG_SIZE] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+
+// Current key to the encrption algorithm
 int cypherKey = 4;
 
 void setup() {
@@ -36,6 +40,7 @@ void loop() {
   processSerial();
 }
 
+// Function to read serial input and take action if data present
 void processSerial()
 {
   if(Serial.available() > 0)
@@ -45,12 +50,17 @@ void processSerial()
     {
       encoded[i] = decoded[i] = '\0';
     }
+	
     // Read an entire line of text
     size_t bytes = Serial.readBytesUntil('\n', encoded, MAX_MSG_SIZE);
     
+	// Look for new cypher key
+	// Expected format is <MSG>##
+	// Where ## is the cypher shift
     int idx = 0;
     for (int i = 0; i < bytes; i++)
     {
+	  // Since the cypher doesn't include numbers, can just look for that information
       if('0' <= encoded[i] && encoded[i] <= '9')
       {
         idx = i;
@@ -63,8 +73,12 @@ void processSerial()
     Serial.print(idx, DEC);
     Serial.println();
 #endif
+
+	// get the cypher key value
     cypherKey = atoi(encoded + idx);
-    for (int i = 0; i < idx; i++)
+    
+	// Decode the message
+	for (int i = 0; i < idx; i++)
     {
         decoded[i] = decrypt(encoded[i], cypherKey);
       
@@ -89,6 +103,7 @@ void processSerial()
   }
 }
 
+// Decodes the encrypted character
 char decrypt(char c, uint8_t key)
 {
   uint8_t x;

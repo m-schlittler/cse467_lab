@@ -3,9 +3,13 @@
 
 unsigned long lastUpdate = 0;
 int index = 0;
-int maxIndex = 27;
+int maxIndex = NUM_CHARS;
+
+// Buffers for messages. Initialize with alphabet just to prove everything works
 uint8_t encoded[MAX_MSG_SIZE] = "ABCDFEGHIJKLMNOPQRSTUVWXYZ_";
 uint8_t decoded[MAX_MSG_SIZE] = "ABCDFEGHIJKLMNOPQRSTUVWXYZ_";
+
+// Current key to the encrption algorithm
 int cypherKey = 4;
 
 void setup() {
@@ -21,7 +25,7 @@ void loop() {
   unsigned long diff = millis() - lastUpdate;
   if(diff > 1000)
   {
-    index = (index + 1) % maxIndex;
+    index = (index + 1) % maxIndex; // Move to next character
     lastUpdate = millis();
     
 #if false // Debug statement
@@ -36,6 +40,7 @@ void loop() {
   processSerial();
 }
 
+// Function to read serial input and take action if data present
 void processSerial()
 {
   if(Serial.available() > 0)
@@ -45,16 +50,20 @@ void processSerial()
     {
       encoded[i] = decoded[i] = '\0';
     }
-    // Read an entire line of text
+    
+	// Read an entire line of text
     size_t bytes = Serial.readBytesUntil('\n', encoded, MAX_MSG_SIZE);
     
+	// Decode message
     for (int i = 0; i < bytes; i++)
     {
       decoded[i] = decrypt(encoded[i], cypherKey);
     }
     maxIndex = bytes;
     index = 0;
-    lastUpdate = millis();
+	
+	// Reset timer because otherwise first character is skipped
+    lastUpdate = millis(); 
 
     // Transmit decoded message
     Serial.println("Encoded Message is:");
@@ -70,22 +79,9 @@ void processSerial()
 
 char decrypt(char c, uint8_t key)
 {
-  uint8_t x;
+  uint8_t x = c == '_' ? 26 : (c - 'A');
 
-  if (c == '_')
-  {
-    x = 26;
-    // return (26 - key + 27) % 27;
-  }
-  else {
-    x = c - 'A';
-    // return (c - key + 27) % 27;
-  }
-     x = (x + 27 - key) % 27;
-     return x == 26 ? ' ' : x + 'A';
-}
-
-char encrypt(char c, uint8_t key)
-{
-  return (c + key) % 27;
+  x = (x + NUM_CHARS - key) % NUM_CHARS; // Add base to prevent negative number
+	 
+  return x == 26 ? ' ' : x + 'A';
 }

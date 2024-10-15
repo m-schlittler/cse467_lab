@@ -288,6 +288,7 @@ const uint8_t alphabet[27][7][5] =
   },
 };
 
+// Does all necessary initialization for the dot display
 void initDotDisplay()
 {
   for(int i = 0; i < 5; i++)
