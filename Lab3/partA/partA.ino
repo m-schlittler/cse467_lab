@@ -77,6 +77,7 @@ void processSerial()
   }
 }
 
+// Decodes the encrypted character
 char decrypt(char c, uint8_t key)
 {
   uint8_t x = c == '_' ? 26 : (c - 'A');
