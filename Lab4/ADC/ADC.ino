@@ -3,8 +3,8 @@
 #define SQU A1
 
 // init analog values
-float val_sin = 0;
-float val_squ = 0;
+int val_sin = 0;
+int val_squ = 0;
 
 
 void setup() {
