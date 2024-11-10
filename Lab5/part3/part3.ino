@@ -1,6 +1,6 @@
 // Reference: https://electronoobs.com/eng_arduino_tut140.php
 
-const int LOOPS = 10;
+const int LOOPS = 1000;
 const double CLK = 16E6;
 
 void setup() {
@@ -9,14 +9,15 @@ void setup() {
   
   cli();
   // Using Timer  1, just cause
-  TCCR1A = 1; // Put into normal operation
-  TCCR1B = 3; // Set Clock to  use prescaler
+  TCCR1A = 0; // Put into normal operation
+  TCCR1B = 2; // Set Clock to  use prescaler
   TCNT1 = 0;
   sei();
 }
 
-  float x = 1.2345;
-  float y = 6.789;
+float x = 1.2345;
+float y = 6.789;
+
 void loop() {
   // put your main code here, to run repeatedly:
 

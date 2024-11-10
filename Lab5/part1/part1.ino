@@ -17,15 +17,14 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  // cli();
-  // noInterrupts();
+  cli();
   digitalWrite(PIN, HIGH);
   for(int i = 0; i < LOOPS; i++)
   {
     x *= y;
   }
   digitalWrite(PIN, LOW);
-  // interrupts();
+  sei();
 
   delay(500);
 }
