@@ -8,7 +8,7 @@ const uint8_t BTN_HOT = 3;    // Digital 3
 const uint8_t led = 13;       // led test
 
 float currentTemp;
-float setTemp = 20; // temp as set in ISR
+float setTemp; // temp as set in ISR
 bool ISRchanged = false;
 
 void setup() {
@@ -51,17 +51,18 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   #if true
-  setColor('R');
-  Serial.println("R");
-  delay(1000);
-  setColor('G');
-  Serial.println("G");
-  delay(1000);
-  setColor('B');
-  Serial.println("B");
-  delay(1000);
+  // setColor('R');
+  // Serial.println("R");
+  // delay(1000);
+  // setColor('G');
+  // Serial.println("G");
+  // delay(1000);
+  // setColor('B');
+  // Serial.println("B");
+  // delay(1000);
 
   currentTemp = readTemperature();
+  tempCheckLED();
 
   lcd.setCursor(0,0); // set pos for LCD
   lcd.print("Temp:");
@@ -75,12 +76,14 @@ void loop() {
     lcd.setCursor(0, 1);
     lcd.print("Setpoint:");
     lcd.setCursor(10, 1);
-    lcd.print(setTemp);
+    lcd.print(setTemp--);
     ISRchanged = false;
   }
 
   #endif
   delay(750);
+
+  
 }
 
 void handleInterrupt()
@@ -118,8 +121,23 @@ ISR(TIMER1_OVF_vect)
 
 // places setpoint on lcd screen
 void setPoint_interrupt(){
-  setTemp = currentTemp;
+  float tempDiff = setTemp - currentTemp;
   ISRchanged = true;
 }
 
+void tempCheckLED() {
+  if (tempDiff < -1) {
+    setColor('B');
+    Serial.println("B");
+  }
+  else if (tempDiff > 1) {
+    setColor('R');
+    Serial.println("R");
+  }
+  else {
+    setColor('G');
+    Serial.println("G");
+  }
+    
+}
 
