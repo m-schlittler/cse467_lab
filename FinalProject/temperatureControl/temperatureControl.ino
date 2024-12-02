@@ -9,7 +9,7 @@ const uint8_t led = 13;       // led test
 
 float currentTemp;
 float setTemp = 20; // temp as set in ISR
-bool ISRchanged = false;
+bool ISRchanged = true; // Initially true to allow value to be shown
 
 void setup() {
   // put your setup code here, to run once:
@@ -45,7 +45,8 @@ void setup() {
 
   // button interrupt
   // attachInterrupt(digitalPinToInterrupt(BTN_COLD), C_BTN, RISING); // allow for interrupt on button press
-  attachInterrupt(digitalPinToInterrupt(BTN_HOT), setPoint_interrupt, RISING); // allow for interrupt on button press
+  attachInterrupt(digitalPinToInterrupt(BTN_HOT), setPoint_interruptHot, RISING); // allow for interrupt on button press
+  attachInterrupt(digitalPinToInterrupt(BTN_COLD), setPoint_interruptCold, RISING); // allow for interrupt on button press
 }
 
 void loop() {
@@ -66,16 +67,22 @@ void loop() {
   lcd.setCursor(0,0); // set pos for LCD
   lcd.print("Temp:");
   lcd.setCursor(6,0); // set pos for LCD
-  lcd.print(currentTemp);
+  lcd.print(currentTemp, 1);
+  lcd.print(" ");
+  lcd.print((char)223);
+  lcd.print("C");
 
   Serial.print("Temp: ");
   Serial.println(currentTemp);
 
   if (ISRchanged) {  
-    lcd.setCursor(0, 1);
-    lcd.print("Setpoint:");
-    lcd.setCursor(10, 1);
-    lcd.print(setTemp);
+    lcd.setCursor(1, 1);
+    lcd.print("Set:");
+    lcd.setCursor(6, 1);
+    lcd.print(setTemp, 1);
+    lcd.print(" ");
+    lcd.print((char)223);
+    lcd.print("C");
     ISRchanged = false;
   }
 
@@ -117,9 +124,12 @@ ISR(TIMER1_OVF_vect)
 }
 
 // places setpoint on lcd screen
-void setPoint_interrupt(){
-  setTemp = currentTemp;
+void setPoint_interruptHot(){
+  setTemp++;
   ISRchanged = true;
 }
 
-
+void setPoint_interruptCold(){
+  setTemp--;
+  ISRchanged = true;
+}
