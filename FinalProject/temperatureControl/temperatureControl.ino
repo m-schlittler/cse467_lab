@@ -9,6 +9,7 @@ const uint8_t led = 13;       // led test
 
 // varaible setup
 #define DEBUG true
+#define FAHRENHEIT false
 
 float currentTemp; // temp as read by thermo sensor
 float setTemp; // temp as set in ISR
@@ -49,8 +50,6 @@ void setup() {
   TCNT1 = 3035;         // Timer Preloading
   TIMSK1 |= B00000001;  // Enable Timer Overflow Interrupt
 
-  
-  
   // lcd setup
   if (DEBUG) {
     Serial.println("Init LCD");
@@ -67,7 +66,6 @@ void setup() {
     Serial.println("Pre-Set Temperatures");
   }
 
-
   // setpoint to curent reading
   setTemp = readTemperature();
   setTemp = floor(setTemp);  
@@ -83,13 +81,21 @@ void loop() {
     currentTemp = readTemperature();
     tempCheckLED();
 
-    updateLCD(currentTemp, setTemp);
+#if FAHRENHEIT
+    float ct = convertToFahrenheit(currentTemp);
+    float st = convertToFahrenheit(setTemp);
+#else
+    float ct = currentTemp;
+    float st = setTemp;
+#endif
+    
+    updateLCD(ct, st);
 
     if (DEBUG) {
       Serial.print("Temp: ");
-      Serial.println(currentTemp);
+      Serial.println(ct);
       Serial.print("Set Temp: ");
-      Serial.println(setTemp);
+      Serial.println(st);
     }
 
     readTemp = false;
@@ -130,4 +136,9 @@ void tempCheckLED() {
       Serial.println("G");
     }
   }
+}
+
+float convertToFahrenheit(float celsius)
+{
+  return celsius * 9.0 / 5.0 + 32.0;
 }

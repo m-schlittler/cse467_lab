@@ -14,7 +14,11 @@ void updateLCD(float currentTemp, float setTemp)
   lcd.print(setTemp, 1);
   lcd.print(" ");
   lcd.print((char)223);
+#if FAHRENHEIT
+  lcd.print("F");
+#else
   lcd.print("C");
+#endif
 
   lcd.setCursor(0,0); // set pos for LCD
   lcd.print("Temp:");
@@ -22,5 +26,9 @@ void updateLCD(float currentTemp, float setTemp)
   lcd.print(currentTemp, 1);
   lcd.print(" ");
   lcd.print((char)223); // degree symbol
+#if FAHRENHEIT
+  lcd.print("F");
+#else
   lcd.print("C");
+#endif
 }
