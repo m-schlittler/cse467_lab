@@ -49,26 +49,32 @@ void setup() {
   TCNT1 = 3035;         // Timer Preloading
   TIMSK1 |= B00000001;  // Enable Timer Overflow Interrupt
 
-  if (DEBUG) {
-    Serial.println("Init Done");
-  }
+  
   
   // lcd setup
-  lcd.init();
-  lcd.backlight();
+  if (DEBUG) {
+    Serial.println("Init LCD");
+  }
+  initLCD();
   
-  // pin init
-  pinMode(BTN_COLD, INPUT);
-  pinMode(BTN_HOT, INPUT);
-  pinMode(led, OUTPUT);
+  // Button Setup
+  if (DEBUG) {
+    Serial.println("Init Button");
+  }
+  initButtons();
+
+  if (DEBUG) {
+    Serial.println("Pre-Set Temperatures");
+  }
+
 
   // setpoint to curent reading
   setTemp = readTemperature();
-  setTemp = floor(setTemp);
+  setTemp = floor(setTemp);  
 
-  // button interrupt
-  attachInterrupt(digitalPinToInterrupt(BTN_HOT), setPoint_interruptHot, RISING); // allow for interrupt on button press
-  attachInterrupt(digitalPinToInterrupt(BTN_COLD), setPoint_interruptCold, RISING); // allow for interrupt on button press
+  if (DEBUG) {
+    Serial.println("Init Done");
+  }
 }
 
 void loop() {
@@ -77,23 +83,7 @@ void loop() {
     currentTemp = readTemperature();
     tempCheckLED();
 
-    lcd.clear();  // to clear previous output
-    
-    lcd.setCursor(1, 1);
-    lcd.print("Set:");
-    lcd.setCursor(6, 1);
-    lcd.print(setTemp, 1);
-    lcd.print(" ");
-    lcd.print((char)223);
-    lcd.print("C");
-
-    lcd.setCursor(0,0); // set pos for LCD
-    lcd.print("Temp:");
-    lcd.setCursor(6,0); // set pos for LCD
-    lcd.print(currentTemp, 1);
-    lcd.print(" ");
-    lcd.print((char)223); // degree symbol
-    lcd.print("C");
+    updateLCD(currentTemp, setTemp);
 
     if (DEBUG) {
       Serial.print("Temp: ");
@@ -104,9 +94,7 @@ void loop() {
 
     readTemp = false;
     ISRchanged = false;
-  }
-
-  
+  }  
 }
 
 // timer interrupt for RT temp updates
@@ -114,47 +102,6 @@ ISR(TIMER1_OVF_vect)
 {
   TCNT1 = 3035; // Timer Preloading
   readTemp = true; 
-}
-
-// places setpoint on lcd screen
-void setPoint_interruptHot(){
-  //debounce vars
-  static unsigned long lastPress = 0;
-  if (DEBUG) {
-    Serial.print("Last Hot Btn Press: ");
-    Serial.println(lastPress);
-  }
-
-  if ((millis() - lastPress) > 1000) {
-    lastPress = millis();
-
-    if (DEBUG) {
-      Serial.println("Increase!");
-    }
-
-    setTemp++;
-    ISRchanged = true;  
-  }
-}
-
-void setPoint_interruptCold(){
-  //debounce vars
-  static unsigned long lastPress = 0;
-  if (DEBUG) {
-    Serial.print("Last Cold Btn Press: ");
-    Serial.println(lastPress);
-  }
-
-  if ((millis() - lastPress) > 1000) {
-    lastPress = millis();
-    
-    if (DEBUG) {
-      Serial.println("Decrease!");
-    }
-    
-    setTemp--;
-    ISRchanged = true;  
-  }
 }
 
 void tempCheckLED() {
