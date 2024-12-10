@@ -1,3 +1,5 @@
+const int BTN_DEBOUNCE_MS = 250;
+
 void initButtons()
 {
   // pin init
@@ -6,8 +8,8 @@ void initButtons()
   pinMode(led, OUTPUT);
 
   // button interrupt
-  attachInterrupt(digitalPinToInterrupt(BTN_HOT), setPoint_interruptHot, RISING); // allow for interrupt on button press
-  attachInterrupt(digitalPinToInterrupt(BTN_COLD), setPoint_interruptCold, RISING); // allow for interrupt on button press
+  attachInterrupt(digitalPinToInterrupt(BTN_HOT), setPoint_interruptHot, FALLING); // allow for interrupt on button press
+  attachInterrupt(digitalPinToInterrupt(BTN_COLD), setPoint_interruptCold, FALLING); // allow for interrupt on button press
 }
 
 // places setpoint on lcd screen
@@ -19,7 +21,7 @@ void setPoint_interruptHot(){
     Serial.println(lastPress);
   }
 
-  if ((millis() - lastPress) > 1000) {
+  if ((millis() - lastPress) > BTN_DEBOUNCE_MS) {
     lastPress = millis();
 
     if (DEBUG) {
@@ -39,7 +41,7 @@ void setPoint_interruptCold(){
     Serial.println(lastPress);
   }
 
-  if ((millis() - lastPress) > 1000) {
+  if ((millis() - lastPress) > BTN_DEBOUNCE_MS) {
     lastPress = millis();
     
     if (DEBUG) {
